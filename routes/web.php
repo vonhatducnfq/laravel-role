@@ -13,6 +13,45 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::group(['namespace' => 'App\Http\Controllers'], function()
+{
+    /**
+     * Home Routes
+     */
+    Route::get('/', 'HomeController@index')->name('home.index');
+    Route::get('/logout', 'LogoutController@perform')->name('logout.perform');
+
+    Route::group(['middleware' => ['guest']], function() {
+        /**
+         * Register Routes
+         */
+        Route::get('/register', 'RegisterController@show')->name('register.show');
+        Route::post('/register', 'RegisterController@register')->name('register.perform');
+
+        /**
+         * Login Routes
+         */
+        Route::get('/login', 'LoginController@show')->name('login');
+        Route::post('/login', 'LoginController@login')->name('login.perform');
+    });
+
+    Route::group(['middleware' => ['auth', 'permission']], function() {
+        /**
+         * User Routes
+         */
+        Route::group(['prefix' => 'users'], function() {
+            Route::get('/', 'UsersController@index')->name('users.index');
+            Route::get('/student', 'UsersController@student')->name('users.student');
+            Route::get('/mentor', 'UsersController@mentor')->name('users.mentor');
+            Route::get('/create', 'UsersController@create')->name('users.create');
+            Route::post('/create', 'UsersController@store')->name('users.store');
+            Route::get('/{user}/show', 'UsersController@show')->name('users.show');
+            Route::get('/{user}/edit', 'UsersController@edit')->name('users.edit');
+            Route::patch('/{user}/update', 'UsersController@update')->name('users.update');
+            Route::delete('/{user}/delete', 'UsersController@destroy')->name('users.destroy');
+        });
+
+        Route::resource('roles', RolesController::class);
+        Route::resource('permissions', PermissionsController::class);
+    });
 });
