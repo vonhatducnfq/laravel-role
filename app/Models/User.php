@@ -11,6 +11,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class User extends Authenticatable
 {
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_MENTOR = 'mentor';
+    public const ROLE_STUDENT = 'student';
+
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
     /**

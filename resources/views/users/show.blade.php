@@ -23,7 +23,13 @@
     <div class="mt-4">
         @role('admin')
             <a href="{{ route('users.edit', $user->id) }}" class="btn btn-info">Edit</a>
+            <a href="{{ route('users.index') }}" class="btn btn-default">Back</a>
         @endrole
-        <a href="{{ route('users.index') }}" class="btn btn-default">Back</a>
+        @role('student')
+            <a href="{{ route('users.student') }}" class="btn btn-default">Back</a>
+        @endrole
+        @role('mentor')
+            <a href="{{ route('users.mentor') }}" class="btn btn-default">Back</a>
+        @endrole
     </div>
 @endsection

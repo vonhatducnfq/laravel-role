@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Exceptions\UnauthorizedException;
 use Spatie\Permission\Models\Role;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
@@ -30,7 +32,7 @@ class UsersController extends Controller
      */
     public function create()
     {
-        return view('users.create', [ 'roles' => Role::latest()->get()]);
+        return view('users.create', ['roles' => Role::latest()->get()]);
     }
 
     /**
@@ -59,6 +61,28 @@ class UsersController extends Controller
      */
     public function show(User $user)
     {
+        $currentUser = Auth::user();
+        $role = $currentUser->roles()->value('name');
+
+        switch ($role) {
+            case User::ROLE_ADMIN:
+                break;
+            case User::ROLE_MENTOR:
+                if ($user->roles()->value('name') != User::ROLE_STUDENT) {
+                    throw UnauthorizedException::forPermissions(['view']);
+                }
+
+                break;
+            case User::ROLE_STUDENT:
+                if ($user->roles()->value('name') != User::ROLE_MENTOR) {
+                    throw UnauthorizedException::forPermissions(['view']);
+                }
+
+                break;
+            default:
+                throw UnauthorizedException::forPermissions(['view']);
+        }
+
         return view('users.show', [
             'user' => $user
         ]);
